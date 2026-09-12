@@ -5,12 +5,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float velocidad = 5f;
     [SerializeField] private float fuerzaSalto = 8f;
 
-    public ParticleSystem polvoSalto; // NUEVO
+    public ParticleSystem polvoSalto;
 
     private Rigidbody2D rb;
     private Animator animator;
 
     private bool enSuelo;
+
 
     void Start()
     {
@@ -18,21 +19,22 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
+
     void Update()
     {
-        // Movimiento izquierda y derecha
         float movimiento = Input.GetAxisRaw("Horizontal");
 
+
+        // Movimiento
         rb.linearVelocity = new Vector2(
             movimiento * velocidad,
             rb.linearVelocity.y
         );
 
-        // Animación correr
-        if (animator != null)
-        {
-            animator.SetBool("isRunning", movimiento != 0);
-        }
+
+        // Idle y Run
+        animator.SetBool("isRunning", movimiento != 0);
+
 
         // Salto
         if (Input.GetKeyDown(KeyCode.Space) && enSuelo)
@@ -42,28 +44,29 @@ public class PlayerController : MonoBehaviour
                 fuerzaSalto
             );
 
-            // Activar polvo
+            enSuelo = false;
+
+            animator.SetBool("isJumping", true);
+
+
             if (polvoSalto != null)
             {
                 polvoSalto.Play();
             }
-
-            enSuelo = false;
         }
     }
+
 
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ground") ||
-            collision.gameObject.CompareTag("Platform"))
+           collision.gameObject.CompareTag("Platform"))
         {
             enSuelo = true;
 
-            if (animator != null)
-            {
-                animator.SetBool("isJumping", false);
-            }
+            animator.SetBool("isJumping", false);
+            // Corrección final de animaciones
         }
     }
 }
